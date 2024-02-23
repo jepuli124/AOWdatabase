@@ -17,25 +17,9 @@ def initDatabase():
     if not Exist:
         with open("creation.sql", "r") as file:
             command = ""
-            data = file.readlines()
-            for commandline in data:
-                markedContinue = False
-                markedExecute = False
-                for char in commandline:
-                    if char == '-':
-                        markedContinue = True
-                        continue
-                    elif char == ';':
-                        markedExecute = True
-                        continue
-                if markedContinue:
-                    continue
-                if markedExecute: 
-                    command += commandline
-                    cursor.execute(command)
-                    command = ""
-                else:
-                    command += commandline
+            for line in file.readlines():
+                command+=line
+            cursor.executescript(command)
     else:
         print("Database exist, hurray")
     
