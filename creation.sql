@@ -7,7 +7,7 @@ CREATE TABLE Organism
     PRIMARY KEY (OrgID)
 );
 
-
+INSERT INTO Organism (OrgID, Name, Description, Type) VALUES (1, "Hello", "World", 3);
 --CREATE TABLE Likes 
 --(
 --    LikeID	INT NOT NULL,
@@ -18,4 +18,4 @@ CREATE TABLE Organism
 --    FOREIGN KEY (UserID) REFERENCES User (UserID),
 --    FOREIGN KEY (TweetID) REFERENCES Tweet (TweetID),
 --    FOREIGN KEY (CommentID) REFERENCES Comments (CommentID)
---); 
+--);
