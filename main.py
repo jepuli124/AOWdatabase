@@ -39,6 +39,8 @@ def main():
             insertOrganism()
         elif choise == 4:
             deleteOrganism()
+        elif choise == 5:
+            updateOrganism()
         elif choise == 0:
             break
         else:
@@ -48,23 +50,33 @@ def main():
     return 0
 
 def options():
-    print("")
-    print("Choose option")
+    print("\nChoose option")
     print("1) Print Organisms")
     print("2) Print Souls")
     print("3) Add new Organism")
     print("4) Delete Organism")
+    print("5) Update Organism")
     print("0) End")
     pass
 
 
 def printOrganisms():
+    print("Organisms:")
     data = cursor.execute("SELECT * FROM Organism")
-    print(data.fetchall())
+    for org in data.fetchall():
+        print(org)
+
+def printSpecificOrganism(orgID):
+    data = cursor.execute('SELECT * FROM Organism WHERE OrgID == '+orgID+';')
+    print("")
+    print(data.fetchall()[0])
+    
 
 def printSouls():
+    print("Souls:")
     data = cursor.execute("SELECT * FROM Soul")
-    print(data.fetchall())
+    for soul in data.fetchall():
+        print(soul)
 
 def insertOrganism():
     print("Give the details of the new Organism")
@@ -117,6 +129,54 @@ def deleteOrganism():
         db.commit()
     except sql.Error as e:
         print("\nWrong input, try again! Error: ",e)
+
+def updateOrganism():
+    print("Which Organism you want to update?\n")
+    printOrganisms()
+    orgID = input("\nGive Organism ID: ")
+    cursor.execute('SELECT COUNT(*) FROM Organism WHERE OrgID == "'+orgID+'";')
+
+    if cursor.fetchone()[0] == 0:
+        print("No such Organism!")
+        return
+    
+    while True:
+        printSpecificOrganism(orgID)
+        choise = updateOptions()
+        try:
+            if choise == 1:
+                newData = input("Give new Name: ")
+                cursor.execute('UPDATE Organism SET Name = "'+newData+'" WHERE OrgID == '+orgID+';')
+            elif choise == 2:
+                newData = input("Give new Description: ")
+                cursor.execute('UPDATE Organism SET Description = "'+newData+'" WHERE OrgID == '+orgID+';')
+            elif choise == 3:
+                newData = input("Give new Organism type (0,1,2): ")
+                cursor.execute('UPDATE Organism SET OrgTypeID = '+newData+' WHERE OrgID == '+orgID+';')
+            elif choise == 4:
+                newData = input("Give new Living style (0,1,2): ")
+                cursor.execute('UPDATE Organism SET LivingStyleID = '+newData+' WHERE OrgID == '+orgID+';')
+            elif choise == 5:
+                newData = input("Give new Living area (0,1,2): ")
+                cursor.execute('UPDATE OrgToLA SET LivingAreaID = '+newData+' WHERE OrgID == '+orgID+';')
+            elif choise == 0:
+                db.commit()
+                break
+            else:
+                print("\nNo such option!")
+        except sql.Error as e:
+            print("\nWrong input, try again! Error: ",e)
+
+def updateOptions():
+    print("\nWhat do you wnat to update:")
+    print("1) Name")
+    print("2) Description")
+    print("3) Organism type")
+    print("4) Living style")
+    print("5) Living area")
+    print("0) Save")
+    choise = int(input("Your choise: "))
+    return choise
 
 initDatabase()
 main()
