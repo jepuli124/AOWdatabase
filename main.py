@@ -37,6 +37,8 @@ def main():
             printSouls()
         elif choise == 3:
             insertOrganism()
+        elif choise == 4:
+            deleteOrganism()
         elif choise == 0:
             break
         else:
@@ -51,6 +53,7 @@ def options():
     print("1) Print Organisms")
     print("2) Print Souls")
     print("3) Add new Organism")
+    print("4) Delete Organism")
     print("0) End")
     pass
 
@@ -69,7 +72,8 @@ def insertOrganism():
     description = input("Description: ")
     organismTypeID = input("Organism type (0,1,2): ")
     livingStyleID = input("Living style (0,1,2): ") 
-    livingAreaID = input("Living area (0,1,2): ") 
+    livingAreaID = input("Living area (0,1,2): ")
+
     cursor.execute("SELECT OrgID FROM Organism ORDER BY OrgID DESC LIMIT 1")
     data = cursor.fetchone()
     if data != None:
@@ -84,9 +88,9 @@ def insertOrganism():
         cursor.execute('UPDATE Soul SET OrgID = '+newOrgID+' WHERE SoulID == '+soulID+';')
         cursor.execute('INSERT INTO OrgToLA (LivingAreaID, OrgID) VALUES ('+livingAreaID+', '+newOrgID+')')
         db.commit()
-    except:
+    except sql.Error as e:
         db.rollback()
-        print("\nWrong input, try again!")
+        print("\nWrong input, try again! Error: ", e)
     
 
 def insertSoul(OrgID):
@@ -103,6 +107,16 @@ def insertSoul(OrgID):
 
     cursor.execute('INSERT INTO Soul (SoulID, OrgID, NaturalSkills, SkillsLimits, Stats) VALUES ('+newSoulID+', NULL, "'+naturalSkills+'", "'+skillsLimits+'", "'+stats+'");')
     return newSoulID
+
+def deleteOrganism():
+    print("Which Organism you want to delete?\n")
+    printOrganisms()
+    orgID = input("\nGive Organism ID: ")
+    try:
+        cursor.execute('DELETE FROM Organism WHERE OrgID == '+orgID+';')
+        db.commit()
+    except sql.Error as e:
+        print("\nWrong input, try again! Error: ",e)
 
 initDatabase()
 main()
