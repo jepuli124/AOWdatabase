@@ -61,7 +61,7 @@ CREATE TABLE OrgToLA(
     OrgID INT NOT NULL,
     LivingAreaID INT NOT NULL,
     FOREIGN KEY (OrgID) REFERENCES Organism (OrgID),
-    FOREIGN KEY (LivingAreaID) REFERENCES LivingArea (LivingAreaID)
+    FOREIGN KEY (LivingAreaID) REFERENCES LivingAreas (LivingAreaID)
 );
 
 CREATE TABLE Infection(
@@ -72,13 +72,21 @@ CREATE TABLE Infection(
 );
 
 
-INSERT INTO OrganismType (OrgTypeID, Name, Description) VALUES (1, "Hello", "World");
+INSERT INTO OrganismType (OrgTypeID, Name, Description) VALUES (0, "Hello", "World");
+INSERT INTO OrganismType (OrgTypeID, Name, Description) VALUES (1, "fire", "lol");
+INSERT INTO OrganismType (OrgTypeID, Name, Description) VALUES (2, "water", "yolo");
 
-INSERT INTO LivingStyle (LivingStyleID, Name, Description) VALUES (1, "Carnivore", "Eats meat");
-INSERT INTO Soul (SoulID) VALUES (1);
+INSERT INTO LivingStyle (LivingStyleID, Name, Description) VALUES (0, "Carnivore", "Eats meat");
+INSERT INTO LivingStyle (LivingStyleID, Name, Description) VALUES (1, "Vegetarian", "Eats vegetables");
+INSERT INTO LivingStyle (LivingStyleID, Name, Description) VALUES (2, "omnivore", "Eats everything");
+
+INSERT INTO LivingAreas (LivingAreaID, Name, Description) VALUES (0, "Forest", "Dense forest");
+INSERT INTO LivingAreas (LivingAreaID, Name, Description) VALUES (1, "Water", "sea");
+INSERT INTO LivingAreas (LivingAreaID, Name, Description) VALUES (2, "Mountain", "big mountain");
+--INSERT INTO Soul (SoulID) VALUES (1);
 
 
-INSERT INTO Organism (OrgID, Name, Description, OrgTypeID, LivingStyleID, SoulID) VALUES (1, "Beast", "Aggressive", 1, 1, 1);
+--INSERT INTO Organism (OrgID, Name, Description, OrgTypeID, LivingStyleID, SoulID) VALUES (1, "Beast", "Aggressive", 1, 1, 1);
 --CREATE TABLE Likes 
 --(
 --    LikeID	INT NOT NULL,

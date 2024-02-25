@@ -41,8 +41,9 @@ def main():
             break
         else:
             print("No such option!")
-    pass
-
+    cursor.close()
+    db.close()
+    return 0
 
 def options():
     print("")
@@ -66,16 +67,27 @@ def insertOrganism():
     print("Give the details of the new Organism")
     name = input("Name: ")
     description = input("Description: ")
-    livingStyle = input("Living style: ") 
-    livingArea = input("Living area: ") 
+    organismTypeID = input("Organism type (0,1,2): ")
+    livingStyleID = input("Living style (0,1,2): ") 
+    livingAreaID = input("Living area (0,1,2): ") 
     cursor.execute("SELECT OrgID FROM Organism ORDER BY OrgID DESC LIMIT 1")
-    newOrgID = str(cursor.fetchone()[0]+1)
+    data = cursor.fetchone()
+    if data != None:
+        newOrgID = str(data[0]+1)
+    else:
+        newOrgID = "0"
     
     soulID = insertSoul(newOrgID)
 
-    cursor.execute('INSERT INTO Organism (OrgID, Name, Description, OrgTypeID, LivingStyleID, SoulID) VALUES ('+newOrgID+', "'+name+'", "'+description+'", 1, 1, '+soulID+');')
-    cursor.execute('UPDATE Soul SET OrgID = '+newOrgID+' WHERE SoulID == '+soulID+';')
-    db.commit()
+    try:
+        cursor.execute('INSERT INTO Organism (OrgID, Name, Description, OrgTypeID, LivingStyleID, SoulID) VALUES ('+newOrgID+', "'+name+'", "'+description+'", '+organismTypeID+', '+livingStyleID+', '+soulID+');')
+        cursor.execute('UPDATE Soul SET OrgID = '+newOrgID+' WHERE SoulID == '+soulID+';')
+        cursor.execute('INSERT INTO OrgToLA (LivingAreaID, OrgID) VALUES ('+livingAreaID+', '+newOrgID+')')
+        db.commit()
+    except:
+        db.rollback()
+        print("\nWrong input, try again!")
+    
 
 def insertSoul(OrgID):
     print("\nGive the details of the new soul")
@@ -83,10 +95,13 @@ def insertSoul(OrgID):
     skillsLimits = input("Skills limits: ")
     stats = input("Stats: ") 
     cursor.execute("SELECT SoulID FROM Soul ORDER BY SoulID DESC LIMIT 1")
-    newSoulID = str(cursor.fetchone()[0]+1)
+    data = cursor.fetchone()
+    if data != None:
+        newSoulID = str(data[0]+1)
+    else: 
+        newSoulID = "0"
 
-    cursor.execute('INSERT INTO Soul (SoulID, OrgID, NaturalSkills, SkillsLimits, Stats) VALUES ('+newSoulID+', NULL, "'+str(naturalSkills)+'", "'+str(skillsLimits)+'", "'+str(stats)+'")')
-    db.commit()
+    cursor.execute('INSERT INTO Soul (SoulID, OrgID, NaturalSkills, SkillsLimits, Stats) VALUES ('+newSoulID+', NULL, "'+naturalSkills+'", "'+skillsLimits+'", "'+stats+'");')
     return newSoulID
 
 initDatabase()
