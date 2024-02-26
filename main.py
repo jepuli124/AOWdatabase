@@ -55,6 +55,8 @@ def main():
             deleteOrganism()
         elif choise == 5:
             updateOrganism()
+        elif choise == 6:
+            findBySpecific()
         elif choise == 0:
             break
         else:
@@ -70,6 +72,7 @@ def options():
     print("3) Add new Organism")
     print("4) Delete Organism")
     print("5) Update Organism")
+    print("6) Find by id or keyword")
     print("0) End\n")
     try:
         choise = int(input("Your choise: "))
@@ -119,7 +122,7 @@ def insertOrganism():
     else:
         newOrgID = "0"
     
-    soulID = insertSoul(newOrgID)
+    soulID = insertSoul()
 
     try:
         cursor.execute('INSERT INTO Organism (OrgID, Name, Description, OrgTypeID, LivingStyleID, SoulID) VALUES ('+newOrgID+', "'+name+'", "'+description+'", '+organismTypeID+', '+livingStyleID+', '+soulID+');')
@@ -131,7 +134,7 @@ def insertOrganism():
         print("\nWrong input, try again! Error: ", e)
     
 
-def insertSoul(OrgID):
+def insertSoul():
     print("\nGive the details of the new soul")
     naturalSkills = input("Natural skills: ")
     skillsLimits = input("Skills limits: ")
@@ -221,6 +224,20 @@ def updateOptions():
         print("please give your choise as a integer")
         choise = updateOptions()
     return choise
+
+def findBySpecific():
+    print("\nFind all organisms and morbus with a id, name or keyword")
+    print("if input is number a ID search is performed,\nif input is not integer a keyword search is performed")
+
+    rawChoise = input("Your choise: ")
+    try:
+        choise = int(rawChoise)
+        cursor.execute("SELECT OrgID, Name, Description FROM Organism where OrgID = "+rawChoise+" UNION SELECT MorbusID, Name, Description FROM Morbus where MorbusID = "+rawChoise)
+    except ValueError:
+        cursor.execute("SELECT OrgID, Name, Description FROM Organism where Name LIKE '%"+rawChoise+"%' UNION SELECT MorbusID, Name, Description FROM Morbus where Name like '%"+rawChoise+"%' UNION SELECT OrgID, Name, Description FROM Organism where Description LIKE '%"+rawChoise+"%' UNION SELECT MorbusID, Name, Description FROM Morbus where Description like '%"+rawChoise+"%'")
+    finally:
+        for data in cursor.fetchall():
+            print("ID:", data[0], "\nName:", data[1], "\nDescription:", data[2],"\n")
 
 print("Welcome")
 initDatabase()
