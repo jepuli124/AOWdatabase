@@ -45,19 +45,22 @@ def main():
     while True:
         choise = options()
         print("")
-        if choise == 1:
+        if choise == "1" or "print org" in choise:
             printOrganisms()
-        elif choise == 2:
+        elif choise == "2" or "print s" in choise:
             printSouls()
-        elif choise == 3:
-            insertOrganism()
-        elif choise == 4:
+        elif choise == "3" or "add" in choise or "insert" in choise:
+            if "mo" in input("Do you want to add a morbus or other organism? : ").lower():
+                insertMorbus()
+            else:
+                insertOrganism()
+        elif choise == "4":
             deleteOrganism()
-        elif choise == 5:
+        elif choise == "5":
             updateOrganism()
-        elif choise == 6:
+        elif choise == "6" or "find" in choise:
             findBySpecific()
-        elif choise == 0:
+        elif choise == "0":
             break
         else:
             print("No such option!")
@@ -69,17 +72,13 @@ def options():
     print("\nChoose option")
     print("1) Print Organisms")
     print("2) Print Souls")
-    print("3) Add new Organism")
+    print("3) Add new Organism or morbus")
     print("4) Delete Organism")
     print("5) Update Organism")
     print("6) Find by id or keyword")
     print("0) End\n")
-    try:
-        choise = int(input("Your choise: "))
-    except ValueError:
-        print("please give your choise as a integer")
-        choise = options()
-    return choise
+    choise = input("Your choise: ")
+    return choise.lower()
 
 
 def printOrganisms():
@@ -149,6 +148,24 @@ def insertSoul():
     cursor.execute('INSERT INTO Soul (SoulID, OrgID, NaturalSkills, SkillsLimits, Stats) VALUES ('+newSoulID+', NULL, "'+naturalSkills+'", "'+skillsLimits+'", "'+stats+'");')
     return newSoulID
 
+def insertMorbus():
+    print("Give the details of the new Morbus")
+    name = input("Name: ")
+    description = input("Description: ")
+    symptoms = input("Symptoms: ")
+    cursor.execute("SELECT MorbusID FROM Morbus ORDER BY MorbusID DESC LIMIT 1")
+    data = cursor.fetchone()
+    if data != None:
+        newMorbusID = str(data[0]+1)
+    else:
+        newMorbusID = "0"
+    try:
+        cursor.execute('INSERT INTO Morbus (MorbusID, Name, Description, Symptoms) VALUES ('+newMorbusID+', "'+name+'", "'+description+'", "'+symptoms+'");')
+        db.commit()
+    except sql.Error as e:
+        db.rollback()
+        print("\nSomething hit the fan, try again! Error: ", e)
+    
 def deleteOrganism():
     print("Which Organism you want to delete?\n")
     printOrganisms()
