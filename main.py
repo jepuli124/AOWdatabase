@@ -101,9 +101,16 @@ def insertOrganism():
     print("Give the details of the new Organism")
     name = input("Name: ")
     description = input("Description: ")
-    organismTypeID = input("Organism type (0,1,2,3): ")
-    livingStyleID = input("Living style (0,1,2,3,4): ") 
-    livingAreaID = input("Living area (0,1,2,3,4,5): ")
+
+    cursor.execute("select count(*) from OrganismType")
+    choises = choiseAmount()
+    organismTypeID = input("Organism type "+choises+": ")
+    cursor.execute("select count(*) from LivingStyle")
+    choises = choiseAmount()
+    livingStyleID = input("Living style "+choises+": ") 
+    cursor.execute("select count(*) from LivingAreas")
+    choises = choiseAmount()
+    livingAreaID = input("Living area "+choises+": ")
 
     cursor.execute("SELECT OrgID FROM Organism ORDER BY OrgID DESC LIMIT 1")
     data = cursor.fetchone()
@@ -175,7 +182,7 @@ def updateOrganism():
                 newData = input("Give new Organism type "+choises+": ")
                 cursor.execute('UPDATE Organism SET OrgTypeID = '+newData+' WHERE OrgID == '+orgID+';')
             elif choise == 4:
-                cursor.execute("select count(*) from LivinStyle")
+                cursor.execute("select count(*) from LivingStyle")
                 choises = choiseAmount()
                 newData = input("Give new Living style "+choises+": ")
                 cursor.execute('UPDATE Organism SET LivingStyleID = '+newData+' WHERE OrgID == '+orgID+';')
@@ -194,9 +201,9 @@ def updateOrganism():
 
 def choiseAmount():
     choiseAmount = cursor.fetchone()
-    choises = "("
-    for x in range(choiseAmount):
-        choises += "," + str(x) 
+    choises = "(0"
+    for x in range(1, choiseAmount[0]):
+        choises += ", " + str(x) 
     choises += ")"
     return choises
 
