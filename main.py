@@ -54,13 +54,13 @@ def main():
                 insertMorbus()
             else:
                 insertOrganism()
-        elif choise == "4":
+        elif choise == "4" or "del" in choise:
             deleteOrganism()
-        elif choise == "5":
+        elif choise == "5"or "upda" in choise:
             updateOrganism()
         elif choise == "6" or "find" in choise:
             findBySpecific()
-        elif choise == "0":
+        elif choise == "0" or "end" in choise:
             break
         else:
             print("No such option!")
@@ -190,28 +190,28 @@ def updateOrganism():
         printSpecificOrganism(orgID)
         choise = updateOptions()
         try:
-            if choise == 1:
+            if choise == '1':
                 newData = input("Give new Name: ")
                 cursor.execute('UPDATE Organism SET Name = "'+newData+'" WHERE OrgID == '+orgID+';')
-            elif choise == 2:
+            elif choise == '2':
                 newData = input("Give new Description: ")
                 cursor.execute('UPDATE Organism SET Description = "'+newData+'" WHERE OrgID == '+orgID+';')
-            elif choise == 3:
+            elif choise == '3':
                 cursor.execute("select count(*) from OrganismType")
                 choises = choiseAmount()
                 newData = input("Give new Organism type "+choises+": ")
                 cursor.execute('UPDATE Organism SET OrgTypeID = '+newData+' WHERE OrgID == '+orgID+';')
-            elif choise == 4:
+            elif choise == '4':
                 cursor.execute("select count(*) from LivingStyle")
                 choises = choiseAmount()
                 newData = input("Give new Living style "+choises+": ")
                 cursor.execute('UPDATE Organism SET LivingStyleID = '+newData+' WHERE OrgID == '+orgID+';')
-            elif choise == 5:
+            elif choise == '5':
                 cursor.execute("select count(*) from LivingAreas")
                 choises = choiseAmount()
                 newData = input("Give new Living area "+choises+": ")
                 cursor.execute('UPDATE OrgToLA SET LivingAreaID = '+newData+' WHERE OrgID == '+orgID+';')
-            elif choise == 0:
+            elif choise == '0':
                 db.commit()
                 break
             else:
@@ -235,11 +235,7 @@ def updateOptions():
     print("4) Living style")
     print("5) Living area")
     print("0) Save")
-    try:
-        choise = int(input("Your choise: "))
-    except ValueError:
-        print("please give your choise as a integer")
-        choise = updateOptions()
+    choise = input("Your choise: ")
     return choise
 
 def findBySpecific():
