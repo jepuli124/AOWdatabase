@@ -1,5 +1,5 @@
 import sqlite3 as sql
-
+import os
 cursor = None
 
 
@@ -21,8 +21,18 @@ def initDatabase():
             for line in file.readlines():
                 command+=line
             cursor.executescript(command)
+        print("New database has been created!")
+        print("Welcome to Age Of Wonders' bestiary!")
     else:
         print("Database exist, hurray")
+        choise = input("Do you want to create a new one?: [y/n]")
+        if choise[0] == "y" or choise[0] == "Y": 
+            choise = input("Are you sure, old one will be overwritten?: [y/n]")
+            if choise[0] == "y" or choise[0] == "Y": 
+                os.remove("database.db")
+                initDatabase()
+                return
+        print("Welcome to Age Of Wonders' bestiary!")
     
         
 
@@ -56,7 +66,7 @@ def options():
     print("3) Add new Organism")
     print("4) Delete Organism")
     print("5) Update Organism")
-    print("0) End")
+    print("0) End\n")
     pass
 
 
@@ -82,9 +92,9 @@ def insertOrganism():
     print("Give the details of the new Organism")
     name = input("Name: ")
     description = input("Description: ")
-    organismTypeID = input("Organism type (0,1,2): ")
-    livingStyleID = input("Living style (0,1,2): ") 
-    livingAreaID = input("Living area (0,1,2): ")
+    organismTypeID = input("Organism type (0,1,2,3): ")
+    livingStyleID = input("Living style (0,1,2,3,4): ") 
+    livingAreaID = input("Living area (0,1,2,3,4,5): ")
 
     cursor.execute("SELECT OrgID FROM Organism ORDER BY OrgID DESC LIMIT 1")
     data = cursor.fetchone()

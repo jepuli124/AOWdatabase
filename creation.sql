@@ -72,29 +72,21 @@ CREATE TABLE Infection(
 );
 
 
-INSERT INTO OrganismType (OrgTypeID, Name, Description) VALUES (0, "Hello", "World");
-INSERT INTO OrganismType (OrgTypeID, Name, Description) VALUES (1, "fire", "lol");
-INSERT INTO OrganismType (OrgTypeID, Name, Description) VALUES (2, "water", "yolo");
+INSERT INTO OrganismType (OrgTypeID, Name, Description) VALUES (0, "Bestia", "All animals that lives on land or air");
+INSERT INTO OrganismType (OrgTypeID, Name, Description) VALUES (1, "Aqua", "All animals that lives by water");
+INSERT INTO OrganismType (OrgTypeID, Name, Description) VALUES (2, "Herba", "All kinds of plants");
+INSERT INTO OrganismType (OrgTypeID, Name, Description) VALUES (3, "Fungus", "All kinds of Mushrooms");
 
-INSERT INTO LivingStyle (LivingStyleID, Name, Description) VALUES (0, "Carnivore", "Eats meat");
-INSERT INTO LivingStyle (LivingStyleID, Name, Description) VALUES (1, "Vegetarian", "Eats vegetables");
+INSERT INTO LivingStyle (LivingStyleID, Name, Description) VALUES (0, "Obligate Carnivore", "Eats only meat");
+INSERT INTO LivingStyle (LivingStyleID, Name, Description) VALUES (1, "Carnivore", "Eats mainly meat");
 INSERT INTO LivingStyle (LivingStyleID, Name, Description) VALUES (2, "omnivore", "Eats everything");
+INSERT INTO LivingStyle (LivingStyleID, Name, Description) VALUES (3, "Vegetarian", "Eats mainly vegetables");
+INSERT INTO LivingStyle (LivingStyleID, Name, Description) VALUES (4, "Obligate Vegetarian", "Eats only vegetables");
 
 INSERT INTO LivingAreas (LivingAreaID, Name, Description) VALUES (0, "Forest", "Dense forest");
 INSERT INTO LivingAreas (LivingAreaID, Name, Description) VALUES (1, "Water", "sea");
 INSERT INTO LivingAreas (LivingAreaID, Name, Description) VALUES (2, "Mountain", "big mountain");
---INSERT INTO Soul (SoulID) VALUES (1);
+INSERT INTO LivingAreas (LivingAreaID, Name, Description) VALUES (3, "Desert", "It's coarse, irritating and gets everywhere");
+INSERT INTO LivingAreas (LivingAreaID, Name, Description) VALUES (4, "Savanna", "High tempetature, dry, suitable only those that evolved to that, not much life");
+INSERT INTO LivingAreas (LivingAreaID, Name, Description) VALUES (5, "Rainforest", "High tempetature, wet, filled to the brim with living beings");
 
-
---INSERT INTO Organism (OrgID, Name, Description, OrgTypeID, LivingStyleID, SoulID) VALUES (1, "Beast", "Aggressive", 1, 1, 1);
---CREATE TABLE Likes 
---(
---    LikeID	INT NOT NULL,
---    UserID	INT NOT NULL,
---    TweetID	INT,
---    CommentID	INT,
---    PRIMARY KEY (LikeID),
---    FOREIGN KEY (UserID) REFERENCES User (UserID),
---    FOREIGN KEY (TweetID) REFERENCES Tweet (TweetID),
---    FOREIGN KEY (CommentID) REFERENCES Comments (CommentID)
---);
