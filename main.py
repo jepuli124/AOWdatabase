@@ -68,6 +68,8 @@ def main():
                 findByStyle()
         elif choise == "7" or "infect" in choise:
             addInfection()
+        elif choise == "8":
+            printInfections()
         elif choise == "0" or "end" in choise:
             break
         elif "any" in choise or "lua" in choise:
@@ -87,6 +89,7 @@ def options():
     print("5) Update Organism")
     print("6) Find by id or keyword")
     print("7) Add infection (connection between morbus and organism)")
+    print("8) Print Infections")
     print("0) End\n")
     print("lua) to enter LUA mode")
     choise = input("Your choise: ")
@@ -98,6 +101,13 @@ def printOrganisms():
     data = cursor.execute("SELECT * FROM Organism")
     for cell in data:
         print("\nID:", cell[0], "Name:", cell[1], "\nDescription:", cell[2])
+    print("")
+
+def printInfections(): #!DOTO
+    print("Infections:")
+    #data = cursor.execute("Select Organism.Name as orgName where Organism.OrgID = (SELECT OrgID as ID FROM Infection)  , Morbus.Name as NM FROM Organism WHERE OrdID INNER JOIN Morbus ON Infection.MorbusID = Infection.OrgID)")
+    #for cell in data:
+    #    print("\nOrganism:", cell[0], "Morbus:", cell[1])
     print("")
 
 def printSpecificOrganism(orgID):
@@ -178,7 +188,6 @@ def printMorbus():
     for cell in data:
         print("\nID:", cell[0], "Name:", cell[1], "\nDescription:", cell[2], "\nSymptoms:", cell[3])
     print("")
-        
 
 
 def insertMorbus():
