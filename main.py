@@ -59,7 +59,13 @@ def main():
         elif choise == "5"or "upda" in choise:
             updateOrganism()
         elif choise == "6" or "find" in choise:
-            findBySpecific()
+            userInput = input("Do you want to find by id, keyword, living area, or living style: ")
+            if "id" in userInput or "key" in userInput:     
+                findBySpecific()
+            if "area" in userInput:
+                findByArea()
+            if "sty" in userInput:
+                findByStyle()
         elif choise == "0" or "end" in choise:
             break
         elif "any" in choise or "lua" in choise:
@@ -95,6 +101,17 @@ def printSpecificOrganism(orgID):
     print("")
     print(data.fetchall()[0])
     
+def printStyles():
+    print("Living Styles: ")
+    data = cursor.execute("SELECT * FROM LivingStyle")
+    for sty in data.fetchall():
+        print(sty)
+
+def printAreas():
+    print("Living Areas: ")
+    data = cursor.execute("SELECT * FROM LivingAreas")
+    for area in data.fetchall():
+        print(area)
 
 def printSouls():
     print("Souls:")
@@ -271,6 +288,23 @@ def lua():
 
             if "insert" in userInput.lower() or "delete" in userInput.lower() or "update" in userInput.lower():
                 db.commit()
+
+def findByStyle():
+    printStyles()
+    userInput = input("What living style you choose: ").lower()
+    data = cursor.execute('SELECT OrgID, Name, Description FROM Organism where LivingStyleID == '+userInput+';')
+    print("")
+    for cell in data:
+        print("ID:",cell[0],"Name:",cell[1],"Description:",cell[2])
+    
+def findByArea():
+    printAreas()
+    userInput = input("What living area you choose: ").lower()
+    data = cursor.execute('SELECT OrgID, Name, Description FROM Organism where OrgID = (SELECT OrgID as ID FROM OrgToLA WHERE LivingAreaID == '+userInput+');')
+    print("")
+    for cell in data:
+        print("ID:",cell[0],"Name:",cell[1],"Description:",cell[2])
+
 
 print("Welcome")
 initDatabase()
