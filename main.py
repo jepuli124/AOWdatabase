@@ -66,6 +66,8 @@ def main():
                 findByArea()
             if "sty" in userInput:
                 findByStyle()
+        elif choise == "7" or "infect" in choise:
+            addInfection()
         elif choise == "0" or "end" in choise:
             break
         elif "any" in choise or "lua" in choise:
@@ -84,6 +86,7 @@ def options():
     print("4) Delete Organism")
     print("5) Update Organism")
     print("6) Find by id or keyword")
+    print("7) Add infection (connection between morbus and organism)")
     print("0) End\n")
     print("lua) to enter LUA mode")
     choise = input("Your choise: ")
@@ -93,8 +96,9 @@ def options():
 def printOrganisms():
     print("Organisms:")
     data = cursor.execute("SELECT * FROM Organism")
-    for org in data.fetchall():
-        print(org)
+    for cell in data:
+        print("\nID:", cell[0], "Name:", cell[1], "\nDescription:", cell[2])
+    print("")
 
 def printSpecificOrganism(orgID):
     data = cursor.execute('SELECT * FROM Organism WHERE OrgID == '+orgID+';')
@@ -168,6 +172,15 @@ def insertSoul():
     cursor.execute('INSERT INTO Soul (SoulID, OrgID, NaturalSkills, SkillsLimits, Stats) VALUES ('+newSoulID+', NULL, "'+naturalSkills+'", "'+skillsLimits+'", "'+stats+'");')
     return newSoulID
 
+def printMorbus():
+    print("Morbus:")
+    data = cursor.execute("SELECT * FROM Morbus")
+    for cell in data:
+        print("\nID:", cell[0], "Name:", cell[1], "\nDescription:", cell[2], "\nSymptoms:", cell[3])
+    print("")
+        
+
+
 def insertMorbus():
     print("Give the details of the new Morbus")
     name = input("Name: ")
@@ -185,6 +198,46 @@ def insertMorbus():
     except sql.Error as e:
         db.rollback()
         print("\nSomething hit the fan, try again! Error: ", e)
+
+def addInfection():
+    print("Add a way that a morbus can infect a organism")
+    printMorbus()
+    morbus = input("Which morbus? you may insert id or name: ")
+    try:
+        int(morbus)
+        cursor.execute("SELECT MorbusID FROM Morbus where MorbusID = "+morbus)
+    except ValueError:
+        cursor.execute("SELECT MorbusID FROM Morbus WHERE Name LIKE '%"+morbus+"%'")
+    morbusID = cursor.fetchone()
+    if morbusID == None:
+        print("invalid request")
+        return
+    morbusID = morbusID[0]
+    while True:
+        printOrganisms()
+        organism = input("Which organism? you may insert id or name. 'E' exits: ")
+        if organism.lower() == "e":
+            break
+        try:
+            int(organism)
+            cursor.execute("SELECT OrgID FROM Organism where OrgID = "+organism)
+        except ValueError:
+            cursor.execute("SELECT OrgID FROM Organism WHERE Name LIKE '%"+organism+"%'")
+        orgID = cursor.fetchone()
+        if orgID == None:
+            print("invalid request")
+            continue
+        orgID = orgID[0]
+        try:
+            cursor.execute('INSERT INTO Infection (MorbusID, OrgID) VALUES ('+str(morbusID)+', "'+str(orgID)+'");')
+            db.commit()
+        except sql.Error as e:
+            db.rollback()
+            print("\nSomething hit the fan, try again! Error: ", e)
+    if 'y' in input("do you want to choose another morbus) [y/n]").lower():
+        addInfection()
+    return
+
     
 def deleteOrganism():
     print("Which Organism you want to delete?\n")
