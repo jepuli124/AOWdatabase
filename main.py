@@ -8,19 +8,21 @@ def initDatabase():
     global db
     Exist = False
     try:
-        open("database.db", "x")
+        database = open("database.db", "x")
+        database.close()
     except FileExistsError:
         Exist = True
-    db = sql.connect("database.db")
-    cursor = db.cursor()
-    cursor.execute("PRAGMA foreign_keys = ON")
 
     if not Exist:
+        db = sql.connect("database.db")
+        cursor = db.cursor()
+        cursor.execute("PRAGMA foreign_keys = ON")
         with open("creation.sql", "r") as file:
             command = ""
             for line in file.readlines():
                 command+=line
             cursor.executescript(command)
+        
         print("New database has been created!")
         print("Welcome to Age Of Wonders' bestiary!")
     else:
@@ -32,14 +34,16 @@ def initDatabase():
                 os.remove("database.db")
                 initDatabase()
                 return
+        db = sql.connect("database.db")
+        cursor = db.cursor()
+        cursor.execute("PRAGMA foreign_keys = ON")
         print("Welcome to Age Of Wonders' bestiary!")
     
         
 
 def main():
     while True:
-        options()
-        choise = int(input("Your choise: "))
+        choise = options()
         print("")
         if choise == 1:
             printOrganisms()
@@ -67,7 +71,12 @@ def options():
     print("4) Delete Organism")
     print("5) Update Organism")
     print("0) End\n")
-    pass
+    try:
+        choise = int(input("Your choise: "))
+    except ValueError:
+        print("please give your choise as a integer")
+        choise = options()
+    return choise
 
 
 def printOrganisms():
@@ -161,13 +170,19 @@ def updateOrganism():
                 newData = input("Give new Description: ")
                 cursor.execute('UPDATE Organism SET Description = "'+newData+'" WHERE OrgID == '+orgID+';')
             elif choise == 3:
-                newData = input("Give new Organism type (0,1,2): ")
+                cursor.execute("select count(*) from OrganismType")
+                choises = choiseAmount()
+                newData = input("Give new Organism type "+choises+": ")
                 cursor.execute('UPDATE Organism SET OrgTypeID = '+newData+' WHERE OrgID == '+orgID+';')
             elif choise == 4:
-                newData = input("Give new Living style (0,1,2): ")
+                cursor.execute("select count(*) from LivinStyle")
+                choises = choiseAmount()
+                newData = input("Give new Living style "+choises+": ")
                 cursor.execute('UPDATE Organism SET LivingStyleID = '+newData+' WHERE OrgID == '+orgID+';')
             elif choise == 5:
-                newData = input("Give new Living area (0,1,2): ")
+                cursor.execute("select count(*) from LivingAreas")
+                choises = choiseAmount()
+                newData = input("Give new Living area "+choises+": ")
                 cursor.execute('UPDATE OrgToLA SET LivingAreaID = '+newData+' WHERE OrgID == '+orgID+';')
             elif choise == 0:
                 db.commit()
@@ -177,6 +192,14 @@ def updateOrganism():
         except sql.Error as e:
             print("\nWrong input, try again! Error: ",e)
 
+def choiseAmount():
+    choiseAmount = cursor.fetchone()
+    choises = "("
+    for x in range(choiseAmount):
+        choises += "," + str(x) 
+    choises += ")"
+    return choises
+
 def updateOptions():
     print("\nWhat do you wnat to update:")
     print("1) Name")
@@ -185,8 +208,13 @@ def updateOptions():
     print("4) Living style")
     print("5) Living area")
     print("0) Save")
-    choise = int(input("Your choise: "))
+    try:
+        choise = int(input("Your choise: "))
+    except ValueError:
+        print("please give your choise as a integer")
+        choise = updateOptions()
     return choise
 
+print("Welcome")
 initDatabase()
 main()
