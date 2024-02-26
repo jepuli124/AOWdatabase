@@ -62,6 +62,8 @@ def main():
             findBySpecific()
         elif choise == "0" or "end" in choise:
             break
+        elif "any" in choise or "lua" in choise:
+            lua()
         else:
             print("No such option!")
     cursor.close()
@@ -77,6 +79,7 @@ def options():
     print("5) Update Organism")
     print("6) Find by id or keyword")
     print("0) End\n")
+    print("lua) to enter LUA mode")
     choise = input("Your choise: ")
     return choise.lower()
 
@@ -251,6 +254,23 @@ def findBySpecific():
     finally:
         for data in cursor.fetchall():
             print("ID:", data[0], "\nName:", data[1], "\nDescription:", data[2],"\n")
+
+def lua():
+    while True:
+        print("\nThis is LUA mode, you may make any querry as you wish, by inputing 0 you may exit to many\n")
+        userInput = input("Please make your input: ")
+        if userInput == "0":
+            break
+        else:
+
+            cursor.execute(userInput)
+            if "select" in userInput.lower():
+                data = cursor.fetchall()
+                for cell in data:
+                    print(cell)
+
+            if "insert" in userInput.lower() or "delete" in userInput.lower() or "update" in userInput.lower():
+                db.commit()
 
 print("Welcome")
 initDatabase()
