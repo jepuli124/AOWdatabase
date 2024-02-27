@@ -361,6 +361,7 @@ def findBySpecific():
     except ValueError:
         cursor.execute("SELECT OrgID, Name, Description FROM Organism where Name LIKE '%"+rawChoise+"%' UNION SELECT MorbusID, Name, Description FROM Morbus where Name like '%"+rawChoise+"%' UNION SELECT OrgID, Name, Description FROM Organism where Description LIKE '%"+rawChoise+"%' UNION SELECT MorbusID, Name, Description FROM Morbus where Description like '%"+rawChoise+"%'")
     finally:
+        print("")
         for data in cursor.fetchall():
             print("ID:", data[0], "\nName:", data[1], "\nDescription:", data[2],"\n")
 
@@ -399,10 +400,51 @@ def findByArea():
 
 def viewSelection():
     print("\nChoose a dataview that you want to see:")
-    print("1) ")
-
+    print("1) Print living areas and living style of a specific organism")
+    print("0) Exit")
+    choise = input("Your choise: ")
+    return choise
+    
 def dataViewFunction():
-    pass    
+    while True:
+        choise = viewSelection()
+        if choise == "1":
+            printData1()
+        elif choise == "0":
+            break
+        else:
+            print("No such option!")
+    return 0    
+
+def printData1():
+    print("")
+    printOrganisms()
+    choise = input("Choose Organism by ID: ")
+    try:
+        int(choise)
+        cursor.execute('SELECT OrgID FROM Organism WHERE OrgID == '+choise+';')
+        data = cursor.fetchone()
+        if data == None:
+            print("Organism not found.")
+            return
+        orgID = str(data[0])
+    except ValueError or sql.Error as e:
+        print("Wrong input, try again. Error: ", e)
+        return
+    try:
+        cursor.execute('SELECT LivingStyleID FROM Organism WHERE OrgID == '+orgID+';')
+        livingStyleID = str(cursor.fetchone()[0])
+        cursor.execute('SELECT GROUP_CONCAT(LivingAreas.Name, ", "), LivingStyle.Name FROM LivingAreas INNER JOIN OrgToLA ON OrgToLA.OrgID == '+orgID+' AND OrgToLA.LivingAreaID == LivingAreas.LivingAreaID INNER JOIN LivingStyle ON LivingStyle.LivingStyleID == '+livingStyleID+';')
+        fetchedData = cursor.fetchone()
+
+        print("\n\nDATA:\n")
+        print("Living areas:")
+        print(fetchedData[0])
+        print("\nLiving style:")
+        print(fetchedData[1])
+    except sql.Error as e:
+        print("Somethjing went wrong Error: ", e)
+        return
 
 
 print("Welcome")
