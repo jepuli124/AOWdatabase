@@ -70,6 +70,8 @@ def main():
             addInfection()
         elif choise == "8":
             printInfections()
+        elif choise == "9" or "view" in choise:
+            dataViewFunction()
         elif choise == "0" or "end" in choise:
             break
         elif "any" in choise or "lua" in choise:
@@ -90,6 +92,7 @@ def options():
     print("6) Find by id or keyword")
     print("7) Add infection (connection between morbus and organism)")
     print("8) Print Infections")
+    print("9) Data view selection")
     print("0) End\n")
     print("lua) to enter LUA mode")
     choise = input("Your choise: ")
@@ -144,9 +147,33 @@ def insertOrganism():
     cursor.execute("select count(*) from LivingStyle")
     choises = choiseAmount()
     livingStyleID = input("Living style "+choises+": ") 
+    
+    cursor.execute("select count(*) from LivingAreas")
+    count = str(cursor.fetchone()[0])
+    while True:
+        answer = input("How many living areas do you want to choose (1-"+count+"): ")
+        try:
+            amount = int(answer)
+            if amount >= 1 and amount <= int(count):
+                break
+            print("Choise must be in the given range, try again.")
+        except ValueError:
+            print("Wrong input, try again.")
     cursor.execute("select count(*) from LivingAreas")
     choises = choiseAmount()
-    livingAreaID = input("Living area "+choises+": ")
+    livingAreaIDList = []
+    i=1
+    while i <= amount:
+        answer = input(str(i)+". Living area "+choises+": ")
+        try:
+            number = int(answer)
+            if number >= 0 and number < int(count):
+                livingAreaIDList.append(str(number))
+                i += 1
+                continue
+            print("Choise must be in the given range, try again.")
+        except ValueError:
+            print("Wrong input, try again.")
 
     cursor.execute("SELECT OrgID FROM Organism ORDER BY OrgID DESC LIMIT 1")
     data = cursor.fetchone()
@@ -160,7 +187,8 @@ def insertOrganism():
     try:
         cursor.execute('INSERT INTO Organism (OrgID, Name, Description, OrgTypeID, LivingStyleID, SoulID) VALUES ('+newOrgID+', "'+name+'", "'+description+'", '+organismTypeID+', '+livingStyleID+', '+soulID+');')
         cursor.execute('UPDATE Soul SET OrgID = '+newOrgID+' WHERE SoulID == '+soulID+';')
-        cursor.execute('INSERT INTO OrgToLA (LivingAreaID, OrgID) VALUES ('+livingAreaID+', '+newOrgID+')')
+        for la in livingAreaIDList:
+            cursor.execute('INSERT INTO OrgToLA (LivingAreaID, OrgID) VALUES ('+la+', '+newOrgID+')')
         db.commit()
     except sql.Error as e:
         db.rollback()
@@ -368,6 +396,13 @@ def findByArea():
     print("")
     for cell in data:
         print("ID:",cell[0],"Name:",cell[1],"Description:",cell[2])
+
+def viewSelection():
+    print("\nChoose a dataview that you want to see:")
+    print("1) ")
+
+def dataViewFunction():
+    pass    
 
 
 print("Welcome")
