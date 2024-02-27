@@ -211,10 +211,12 @@ def insertMorbus():
 def addInfection():
     print("Add a way that a morbus can infect a organism")
     printMorbus()
-    morbus = input("Which morbus? you may insert id or name: ")
+    morbus = input("Which morbus? you may insert id or name. 'E' exits: ")
+    if morbus.lower() == "e":
+        return
     try:
         int(morbus)
-        cursor.execute("SELECT MorbusID FROM Morbus where MorbusID = "+morbus)
+        cursor.execute("SELECT MorbusID FROM Morbus WHERE MorbusID = "+morbus)
     except ValueError:
         cursor.execute("SELECT MorbusID FROM Morbus WHERE Name LIKE '%"+morbus+"%'")
     morbusID = cursor.fetchone()
@@ -229,7 +231,7 @@ def addInfection():
             break
         try:
             int(organism)
-            cursor.execute("SELECT OrgID FROM Organism where OrgID = "+organism)
+            cursor.execute("SELECT OrgID FROM Organism WHERE OrgID = "+organism)
         except ValueError:
             cursor.execute("SELECT OrgID FROM Organism WHERE Name LIKE '%"+organism+"%'")
         orgID = cursor.fetchone()
