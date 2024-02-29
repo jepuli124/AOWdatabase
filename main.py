@@ -1,5 +1,6 @@
 import sqlite3 as sql
 import os
+import time
 cursor = None
 
 
@@ -106,11 +107,11 @@ def printOrganisms():
         print("\nID:", cell[0], "Name:", cell[1], "\nDescription:", cell[2])
     print("")
 
-def printInfections(): #!DOTO
+def printInfections(): #!DOTO Still somewhat broken 
     print("Infections:")
-    #data = cursor.execute("Select Organism.Name as orgName where Organism.OrgID = (SELECT OrgID as ID FROM Infection)  , Morbus.Name as NM FROM Organism WHERE OrdID INNER JOIN Morbus ON Infection.MorbusID = Infection.OrgID)")
-    #for cell in data:
-    #    print("\nOrganism:", cell[0], "Morbus:", cell[1])
+    data = cursor.execute("Select OrgName, Name FROM (SELECT * FROM Infection INNER JOIN (SELECT OrgID as OrganismID, name as OrgName FROM Organism) ON OrganismID = Infection.OrgID INNER JOIN Morbus On Morbus.MorbusID = Infection.OrgID) ORDER BY OrgName")
+    for cell in data.fetchall():
+        print("\nOrganism:", cell[0], "Morbus:", cell[1])
     print("")
 
 def printSpecificOrganism(orgID):
@@ -247,7 +248,7 @@ def addInfection():
         cursor.execute("SELECT MorbusID FROM Morbus WHERE MorbusID = "+morbus)
     except ValueError:
         cursor.execute("SELECT MorbusID FROM Morbus WHERE Name LIKE '%"+morbus+"%'")
-    morbusID = cursor.fetchone()
+    morbusID = cursor.fetchall()
     if morbusID == None:
         print("invalid request")
         return
@@ -262,14 +263,17 @@ def addInfection():
             cursor.execute("SELECT OrgID FROM Organism WHERE OrgID = "+organism)
         except ValueError:
             cursor.execute("SELECT OrgID FROM Organism WHERE Name LIKE '%"+organism+"%'")
-        orgID = cursor.fetchone()
+        orgID = cursor.fetchall()
         if orgID == None:
             print("invalid request")
             continue
         orgID = orgID[0]
+        print("\nTrying to add infection link between", str(morbusID[0]), "and", str(orgID[0]))
         try:
-            cursor.execute('INSERT INTO Infection (MorbusID, OrgID) VALUES ('+str(morbusID)+', "'+str(orgID)+'");')
+            cursor.execute('INSERT INTO Infection (MorbusID, OrgID) VALUES ('+str(morbusID[0])+', "'+str(orgID[0])+'");')
+            print("Success")
             db.commit()
+            time.sleep(0.5)
         except sql.Error as e:
             db.rollback()
             print("\nSomething hit the fan, try again! Error: ", e)
@@ -378,6 +382,7 @@ def lua():
                 data = cursor.fetchall()
                 for cell in data:
                     print(cell)
+                    time.sleep(0.1)
 
             if "insert" in userInput.lower() or "delete" in userInput.lower() or "update" in userInput.lower():
                 db.commit()
