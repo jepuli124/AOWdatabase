@@ -96,28 +96,50 @@ def updateOrganism():
     while True:
         printSpecificOrganism(orgID)
         choise = updateOptions()
+        print("\n")
         try:
             if choise == '1':
+                cursor.execute('select Name from Organism where OrgID == '+orgID+';')
+                print("Old Name: "+cursor.fetchone()[0]+"")
                 newData = input("Give new Name: ")
                 cursor.execute('UPDATE Organism SET Name = "'+newData+'" WHERE OrgID == '+orgID+';')
             elif choise == '2':
+                cursor.execute('select Description from Organism where OrgID == '+orgID+';')
+                print("Old Description: "+cursor.fetchone()[0]+"")
                 newData = input("Give new Description: ")
                 cursor.execute('UPDATE Organism SET Description = "'+newData+'" WHERE OrgID == '+orgID+';')
             elif choise == '3':
+                cursor.execute('select OrgTypeID from Organism where OrgID == '+orgID+';')
+                print("Old Organism type: "+cursor.fetchone()[0]+"")
                 cursor.execute("select count(*) from OrganismType")
                 choises = choiseAmount()
                 newData = input("Give new Organism type "+choises+": ")
                 cursor.execute('UPDATE Organism SET OrgTypeID = '+newData+' WHERE OrgID == '+orgID+';')
             elif choise == '4':
+                cursor.execute('select LivingStyleID from Organism where OrgID == '+orgID+'')
+                print("Old Living style: "+cursor.fetchone()[0]+"")
                 cursor.execute("select count(*) from LivingStyle")
                 choises = choiseAmount()
                 newData = input("Give new Living style "+choises+": ")
                 cursor.execute('UPDATE Organism SET LivingStyleID = '+newData+' WHERE OrgID == '+orgID+';')
             elif choise == '5':
+                cursor.execute('select LivingAreaID from OrgToLA where OrgID == '+orgID+';')
+                print("Old Living area(s): ", end="")
+                for i in cursor.fetchall():
+                    print(i[0], end=" ")
+                print("\n")
+                livingAreaID = input("Give the ID of the living area you want to update: ")
+                try:
+                    cursor.execute('select LivingAreaID from OrgToLA where LivingAreaID == '+livingAreaID+' and OrgID == '+orgID+';')
+                    data = cursor.fetchone()[0]
+                    print(data)
+                except:
+                    print("No such ID found!")
+                    continue
                 cursor.execute("select count(*) from LivingAreas")
                 choises = choiseAmount()
                 newData = input("Give new Living area "+choises+": ")
-                cursor.execute('UPDATE OrgToLA SET LivingAreaID = '+newData+' WHERE OrgID == '+orgID+';')
+                cursor.execute('UPDATE OrgToLA SET LivingAreaID = '+newData+' WHERE OrgID == '+orgID+' and LivingAreaID == '+livingAreaID+';')
             elif choise == '0':
                 db.commit()
                 break
@@ -181,10 +203,14 @@ def dataViewOptions():
 
 def printOrganisms():
     print("Organisms:")
-    data = cursor.execute("SELECT * FROM Organism")
+    cursor.execute("SELECT * FROM Organism")
+    data = cursor.fetchall()
+    cursor.execute("SELECT COUNT(*) FROM Organism")
+    count = cursor.fetchone()
     for cell in data:
         print("\nID:", cell[0], "Name:", cell[1], "\nDescription:", cell[2])
     print("")
+    return count[0]
 
 def printInfections(): #!DOTO Still somewhat broken 
     print("Infections:")
@@ -225,7 +251,10 @@ def printMorbus():
 
 def printLivingAreasAndLivingStyle():
     print("")
-    printOrganisms()
+    count = printOrganisms()
+    if count == 0:
+        print("No Organisms in the database!")
+        return
     choise = input("Choose Organism by ID: ")
     try:
         int(choise)
@@ -362,10 +391,11 @@ def addInfection():
     except ValueError:
         cursor.execute("SELECT MorbusID FROM Morbus WHERE Name LIKE '%"+morbus+"%'")
     morbusID = cursor.fetchall()
-    if morbusID == None:
-        print("invalid request")
+    try:
+        morbusID = morbusID[0]
+    except:
+        print("No such Morbus!")
         return
-    morbusID = morbusID[0]
     while True:
         printOrganisms()
         organism = input("Which organism? you may insert id or name. 'E' exits: ")
@@ -398,6 +428,11 @@ def deleteOrganism():
     print("Which Organism you want to delete?\n")
     printOrganisms()
     orgID = input("\nGive Organism ID: ")
+    cursor.execute('SELECT COUNT(*) FROM Organism WHERE OrgID == "'+orgID+'";')
+
+    if cursor.fetchone()[0] == 0:
+        print("No such Organism!")
+        return
     try:
         cursor.execute('DELETE FROM Organism WHERE OrgID == '+orgID+';')
         db.commit()
