@@ -317,7 +317,7 @@ def printLivingAreasAndLivingStyle():
 def insertOrganism():
     printslow("Give the details of the new Organism")
     name = input("Name: ")
-    cursor.execute('select COUNT(Name) from Organism where Name == "'+name+'";')
+    cursor.execute('select COUNT(Name) from Organism where LOWER(Name) == "'+name.lower()+'";')
     if cursor.fetchone()[0] != 0:
         print("The name has been already taken!")
         return
