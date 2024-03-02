@@ -4,11 +4,11 @@ CREATE TABLE Organism
     Name CHAR(40) NOT NULL UNIQUE CHECK (LENGTH(Name) <= 40),
     Description VARCHAR(65535) DEFAULT 'No description given!',
     OrgTypeID INT NOT NULL,
-    LivingStyleID INT NOT NULL,
+    LivingStyleID INT,
     SoulID INT NOT NULL,
     PRIMARY KEY (OrgID),
     FOREIGN KEY (OrgTypeID) REFERENCES OrganismType (OrgTypeID) ON DELETE CASCADE,
-    FOREIGN KEY (LivingStyleID) REFERENCES LivingStyle (LivingStyleID) ON DELETE CASCADE,
+    FOREIGN KEY (LivingStyleID) REFERENCES LivingStyle (LivingStyleID) ON DELETE CASCADE SET NULL,
     FOREIGN KEY (SoulID) REFERENCES Soul (SoulID) ON DELETE CASCADE
 );
 
