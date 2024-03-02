@@ -313,6 +313,10 @@ def printLivingAreasAndLivingStyle():
 def insertOrganism():
     printslow("Give the details of the new Organism")
     name = input("Name: ")
+    cursor.execute('select COUNT(Name) from Organism where Name == "'+name+'";')
+    if cursor.fetchone()[0] != 0:
+        print("The name has been already taken!")
+        return
     description = input("Description: ")
 
     cursor.execute("select count(*) from OrganismType")
