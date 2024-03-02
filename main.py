@@ -40,38 +40,26 @@ def initDatabase():
         cursor.execute("PRAGMA foreign_keys = ON")
         print("Welcome to Age Of Wonders' bestiary!")
     
-        
 
+#############################################################################################################
+# Option functions:
+        
 def main():
     while True:
-        choise = options()
+        choise = mainOptions()
         print("")
-        if choise == "1" or "print org" in choise:
-            printOrganisms()
-        elif choise == "2" or "print s" in choise:
-            printSouls()
-        elif choise == "3" or "add" in choise or "insert" in choise:
+        if choise == "1" or "add" in choise or "insert" in choise:
             if "mo" in input("Do you want to add a morbus or other organism? : ").lower():
                 insertMorbus()
             else:
                 insertOrganism()
-        elif choise == "4" or "del" in choise:
+        elif choise == "2" or "del" in choise:
             deleteOrganism()
-        elif choise == "5"or "upda" in choise:
+        elif choise == "3"or "upda" in choise:
             updateOrganism()
-        elif choise == "6" or "find" in choise:
-            userInput = input("Do you want to find by id, keyword, living area, or living style: ")
-            if "id" in userInput or "key" in userInput:     
-                findBySpecific()
-            if "area" in userInput:
-                findByArea()
-            if "sty" in userInput:
-                findByStyle()
-        elif choise == "7" or "infect" in choise:
+        elif choise == "4" or "infect" in choise:
             addInfection()
-        elif choise == "8":
-            printInfections()
-        elif choise == "9" or "view" in choise:
+        elif choise == "5" or "view" in choise:
             dataViewFunction()
         elif choise == "0" or "end" in choise:
             break
@@ -83,22 +71,113 @@ def main():
     db.close()
     return 0
 
-def options():
+def mainOptions():
     print("\nChoose option")
-    print("1) Print Organisms")
-    print("2) Print Souls")
-    print("3) Add new Organism or morbus")
-    print("4) Delete Organism")
-    print("5) Update Organism")
-    print("6) Find by id or keyword")
-    print("7) Add infection (connection between morbus and organism)")
-    print("8) Print Infections")
-    print("9) Data view selection")
+    print("1) Add new Organism or morbus")
+    print("2) Delete Organism")
+    print("3) Update Organism")
+    print("4) Add infection (connection between morbus and organism)")
+    print("5) Data view selection")
     print("0) End\n")
     print("lua) to enter LUA mode")
     choise = input("Your choise: ")
     return choise.lower()
 
+def updateOrganism():
+    print("Which Organism you want to update?\n")
+    printOrganisms()
+    orgID = input("\nGive Organism ID: ")
+    cursor.execute('SELECT COUNT(*) FROM Organism WHERE OrgID == "'+orgID+'";')
+
+    if cursor.fetchone()[0] == 0:
+        print("No such Organism!")
+        return
+    
+    while True:
+        printSpecificOrganism(orgID)
+        choise = updateOptions()
+        try:
+            if choise == '1':
+                newData = input("Give new Name: ")
+                cursor.execute('UPDATE Organism SET Name = "'+newData+'" WHERE OrgID == '+orgID+';')
+            elif choise == '2':
+                newData = input("Give new Description: ")
+                cursor.execute('UPDATE Organism SET Description = "'+newData+'" WHERE OrgID == '+orgID+';')
+            elif choise == '3':
+                cursor.execute("select count(*) from OrganismType")
+                choises = choiseAmount()
+                newData = input("Give new Organism type "+choises+": ")
+                cursor.execute('UPDATE Organism SET OrgTypeID = '+newData+' WHERE OrgID == '+orgID+';')
+            elif choise == '4':
+                cursor.execute("select count(*) from LivingStyle")
+                choises = choiseAmount()
+                newData = input("Give new Living style "+choises+": ")
+                cursor.execute('UPDATE Organism SET LivingStyleID = '+newData+' WHERE OrgID == '+orgID+';')
+            elif choise == '5':
+                cursor.execute("select count(*) from LivingAreas")
+                choises = choiseAmount()
+                newData = input("Give new Living area "+choises+": ")
+                cursor.execute('UPDATE OrgToLA SET LivingAreaID = '+newData+' WHERE OrgID == '+orgID+';')
+            elif choise == '0':
+                db.commit()
+                break
+            else:
+                print("\nNo such option!")
+        except sql.Error as e:
+            print("\nWrong input, try again! Error: ",e)
+
+def updateOptions():
+    print("\nWhat do you wnat to update:")
+    print("1) Name")
+    print("2) Description")
+    print("3) Organism type")
+    print("4) Living style")
+    print("5) Living area")
+    print("0) Save")
+    choise = input("Your choise: ")
+    return choise
+
+def dataViewFunction():
+    while True:
+        choise = dataViewOptions()
+        if choise == "1":
+            printLivingAreasAndLivingStyle()
+        elif choise == "2" or "print org" in choise:
+            printOrganisms()
+        elif choise == "3" or "print s" in choise:
+            printSouls()
+        elif choise == "4" or "find" in choise:
+            userInput = input("Do you want to find by id, keyword, living area, or living style: ")
+            if "id" in userInput or "key" in userInput:     
+                findBySpecific()
+            if "area" in userInput:
+                findByArea()
+            if "sty" in userInput:
+                findByStyle()
+        elif choise == "5":
+            printInfections()
+        elif choise == "0":
+            break
+        else:
+            print("No such option!")
+    return 0
+
+def dataViewOptions():
+    print("\nChoose a dataview that you want to see:")
+    print("1) Print living areas and living style of a specific organism")
+    print("2) Print Organisms")
+    print("3) Print Souls")
+    print("4) Find by id or keyword")
+    print("5) Print Infections")
+    print("0) Exit")
+    choise = input("Your choise: ")
+    return choise.lower()    
+
+#############################################################################################################
+
+
+#############################################################################################################
+# Print functions:
 
 def printOrganisms():
     print("Organisms:")
@@ -109,7 +188,7 @@ def printOrganisms():
 
 def printInfections(): #!DOTO Still somewhat broken 
     print("Infections:")
-    data = cursor.execute("Select OrgName, Name FROM (SELECT * FROM Infection INNER JOIN (SELECT OrgID as OrganismID, name as OrgName FROM Organism) ON OrganismID = Infection.OrgID INNER JOIN Morbus On Morbus.MorbusID = Infection.OrgID) ORDER BY OrgName")
+    data = cursor.execute("Select OrgName, Name FROM (SELECT * FROM Infection INNER JOIN (SELECT OrgID as OrganismID, name as OrgName FROM Organism) ON OrganismID = Infection.OrgID INNER JOIN Morbus On Morbus.MorbusID = Infection.MorbusID) ORDER BY OrgName")
     for cell in data.fetchall():
         print("\nOrganism:", cell[0], "Morbus:", cell[1])
     print("")
@@ -136,6 +215,49 @@ def printSouls():
     data = cursor.execute("SELECT * FROM Soul")
     for soul in data.fetchall():
         print(soul)
+
+def printMorbus():
+    print("Morbus:")
+    data = cursor.execute("SELECT * FROM Morbus")
+    for cell in data:
+        print("\nID:", cell[0], "Name:", cell[1], "\nDescription:", cell[2], "\nSymptoms:", cell[3])
+    print("")
+
+def printLivingAreasAndLivingStyle():
+    print("")
+    printOrganisms()
+    choise = input("Choose Organism by ID: ")
+    try:
+        int(choise)
+        cursor.execute('SELECT OrgID FROM Organism WHERE OrgID == '+choise+';')
+        data = cursor.fetchone()
+        if data == None:
+            print("Organism not found.")
+            return
+        orgID = str(data[0])
+    except ValueError or sql.Error as e:
+        print("Wrong input, try again. Error: ", e)
+        return
+    try:
+        cursor.execute('SELECT LivingStyleID FROM Organism WHERE OrgID == '+orgID+';')
+        livingStyleID = str(cursor.fetchone()[0])
+        cursor.execute('SELECT GROUP_CONCAT(LivingAreas.Name, ", "), LivingStyle.Name FROM LivingAreas INNER JOIN OrgToLA ON OrgToLA.OrgID == '+orgID+' AND OrgToLA.LivingAreaID == LivingAreas.LivingAreaID INNER JOIN LivingStyle ON LivingStyle.LivingStyleID == '+livingStyleID+';')
+        fetchedData = cursor.fetchone()
+
+        print("\n\nDATA:\n")
+        print("Living areas:")
+        print(fetchedData[0])
+        print("\nLiving style:")
+        print(fetchedData[1])
+    except sql.Error as e:
+        print("Somethjing went wrong Error: ", e)
+        return
+    
+#############################################################################################################
+
+
+#############################################################################################################
+# Database data cahange functions:
 
 def insertOrganism():
     print("Give the details of the new Organism")
@@ -194,7 +316,6 @@ def insertOrganism():
     except sql.Error as e:
         db.rollback()
         print("\nWrong input, try again! Error: ", e)
-    
 
 def insertSoul():
     print("\nGive the details of the new soul")
@@ -210,14 +331,6 @@ def insertSoul():
 
     cursor.execute('INSERT INTO Soul (SoulID, OrgID, NaturalSkills, SkillsLimits, Stats) VALUES ('+newSoulID+', NULL, "'+naturalSkills+'", "'+skillsLimits+'", "'+stats+'");')
     return newSoulID
-
-def printMorbus():
-    print("Morbus:")
-    data = cursor.execute("SELECT * FROM Morbus")
-    for cell in data:
-        print("\nID:", cell[0], "Name:", cell[1], "\nDescription:", cell[2], "\nSymptoms:", cell[3])
-    print("")
-
 
 def insertMorbus():
     print("Give the details of the new Morbus")
@@ -281,7 +394,6 @@ def addInfection():
         addInfection()
     return
 
-    
 def deleteOrganism():
     print("Which Organism you want to delete?\n")
     printOrganisms()
@@ -292,49 +404,6 @@ def deleteOrganism():
     except sql.Error as e:
         print("\nWrong input, try again! Error: ",e)
 
-def updateOrganism():
-    print("Which Organism you want to update?\n")
-    printOrganisms()
-    orgID = input("\nGive Organism ID: ")
-    cursor.execute('SELECT COUNT(*) FROM Organism WHERE OrgID == "'+orgID+'";')
-
-    if cursor.fetchone()[0] == 0:
-        print("No such Organism!")
-        return
-    
-    while True:
-        printSpecificOrganism(orgID)
-        choise = updateOptions()
-        try:
-            if choise == '1':
-                newData = input("Give new Name: ")
-                cursor.execute('UPDATE Organism SET Name = "'+newData+'" WHERE OrgID == '+orgID+';')
-            elif choise == '2':
-                newData = input("Give new Description: ")
-                cursor.execute('UPDATE Organism SET Description = "'+newData+'" WHERE OrgID == '+orgID+';')
-            elif choise == '3':
-                cursor.execute("select count(*) from OrganismType")
-                choises = choiseAmount()
-                newData = input("Give new Organism type "+choises+": ")
-                cursor.execute('UPDATE Organism SET OrgTypeID = '+newData+' WHERE OrgID == '+orgID+';')
-            elif choise == '4':
-                cursor.execute("select count(*) from LivingStyle")
-                choises = choiseAmount()
-                newData = input("Give new Living style "+choises+": ")
-                cursor.execute('UPDATE Organism SET LivingStyleID = '+newData+' WHERE OrgID == '+orgID+';')
-            elif choise == '5':
-                cursor.execute("select count(*) from LivingAreas")
-                choises = choiseAmount()
-                newData = input("Give new Living area "+choises+": ")
-                cursor.execute('UPDATE OrgToLA SET LivingAreaID = '+newData+' WHERE OrgID == '+orgID+';')
-            elif choise == '0':
-                db.commit()
-                break
-            else:
-                print("\nNo such option!")
-        except sql.Error as e:
-            print("\nWrong input, try again! Error: ",e)
-
 def choiseAmount():
     choiseAmount = cursor.fetchone()
     choises = "(0"
@@ -343,16 +412,11 @@ def choiseAmount():
     choises += ")"
     return choises
 
-def updateOptions():
-    print("\nWhat do you wnat to update:")
-    print("1) Name")
-    print("2) Description")
-    print("3) Organism type")
-    print("4) Living style")
-    print("5) Living area")
-    print("0) Save")
-    choise = input("Your choise: ")
-    return choise
+#############################################################################################################
+
+
+#############################################################################################################
+# Find functions and lua function:
 
 def findBySpecific():
     print("\nFind all organisms and morbus with a id, name or keyword")
@@ -376,8 +440,11 @@ def lua():
         if userInput == "0":
             break
         else:
-
-            cursor.execute(userInput)
+            try:
+                cursor.execute(userInput)
+            except sql.Error as e:
+                print("Error in inserted querry, try again. Error: ", e)
+                continue
             if "select" in userInput.lower():
                 data = cursor.fetchall()
                 for cell in data:
@@ -402,54 +469,6 @@ def findByArea():
     print("")
     for cell in data:
         print("ID:",cell[0],"Name:",cell[1],"Description:",cell[2])
-
-def viewSelection():
-    print("\nChoose a dataview that you want to see:")
-    print("1) Print living areas and living style of a specific organism")
-    print("0) Exit")
-    choise = input("Your choise: ")
-    return choise
-    
-def dataViewFunction():
-    while True:
-        choise = viewSelection()
-        if choise == "1":
-            printData1()
-        elif choise == "0":
-            break
-        else:
-            print("No such option!")
-    return 0    
-
-def printData1():
-    print("")
-    printOrganisms()
-    choise = input("Choose Organism by ID: ")
-    try:
-        int(choise)
-        cursor.execute('SELECT OrgID FROM Organism WHERE OrgID == '+choise+';')
-        data = cursor.fetchone()
-        if data == None:
-            print("Organism not found.")
-            return
-        orgID = str(data[0])
-    except ValueError or sql.Error as e:
-        print("Wrong input, try again. Error: ", e)
-        return
-    try:
-        cursor.execute('SELECT LivingStyleID FROM Organism WHERE OrgID == '+orgID+';')
-        livingStyleID = str(cursor.fetchone()[0])
-        cursor.execute('SELECT GROUP_CONCAT(LivingAreas.Name, ", "), LivingStyle.Name FROM LivingAreas INNER JOIN OrgToLA ON OrgToLA.OrgID == '+orgID+' AND OrgToLA.LivingAreaID == LivingAreas.LivingAreaID INNER JOIN LivingStyle ON LivingStyle.LivingStyleID == '+livingStyleID+';')
-        fetchedData = cursor.fetchone()
-
-        print("\n\nDATA:\n")
-        print("Living areas:")
-        print(fetchedData[0])
-        print("\nLiving style:")
-        print(fetchedData[1])
-    except sql.Error as e:
-        print("Somethjing went wrong Error: ", e)
-        return
 
 
 print("Welcome")
