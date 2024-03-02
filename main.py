@@ -261,9 +261,9 @@ def printSouls():
     data = cursor.execute("SELECT name, NaturalSkills, SkillsLimits, Stats FROM Soul INNER JOIN Organism On Soul.OrgID = Organism.OrgID")
     for soul in data.fetchall():
         printslow("\nName:", soul[0])
-        printslow("\nNaturalSkills:", soul[1])
-        printslow("\nSkillsLimits:", soul[2])
-        printslow("\nStats:", soul[3])
+        printslow("NaturalSkills:", soul[1])
+        printslow("SkillsLimits:", soul[2])
+        printslow("Stats:", soul[3])
     printslow("")
     time.sleep(1)
 
