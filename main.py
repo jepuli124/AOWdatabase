@@ -322,7 +322,6 @@ def insertOrganism():
         print("The name has been already taken!")
         return
     description = input("Description: ")
-
     cursor.execute("select count(*) from OrganismType")
     choises = choiseAmount()
     organismTypeID = input("Organism type "+choises+": ")
@@ -367,7 +366,10 @@ def insertOrganism():
     soulID = insertSoul()
 
     try:
-        cursor.execute('INSERT INTO Organism (OrgID, Name, Description, OrgTypeID, LivingStyleID, SoulID) VALUES ('+newOrgID+', "'+name+'", "'+description+'", '+organismTypeID+', '+livingStyleID+', '+soulID+');')
+        if description == "":
+            cursor.execute('INSERT INTO Organism (OrgID, Name, OrgTypeID, LivingStyleID, SoulID) VALUES ('+newOrgID+', "'+name+'", '+organismTypeID+', '+livingStyleID+', '+soulID+');')
+        else:
+            cursor.execute('INSERT INTO Organism (OrgID, Name, Description, OrgTypeID, LivingStyleID, SoulID) VALUES ('+newOrgID+', "'+name+'", "'+description+'", '+organismTypeID+', '+livingStyleID+', '+soulID+');')
         cursor.execute('UPDATE Soul SET OrgID = '+newOrgID+' WHERE SoulID == '+soulID+';')
         for la in livingAreaIDList:
             cursor.execute('INSERT INTO OrgToLA (LivingAreaID, OrgID) VALUES ('+la+', '+newOrgID+')')
