@@ -15,7 +15,7 @@ CREATE TABLE Organism
 CREATE TABLE Morbus
 (
     MorbusID INT NOT NULL,
-    Name CHAR(40) NOT NULL,
+    Name CHAR(40) NOT NULL UNIQUE CHECK (LENGTH(Name) <= 40),
     Description VARCHAR(65535),
     Symptoms VARCHAR(65535),
     PRIMARY KEY (MorbusID)
@@ -70,6 +70,10 @@ CREATE TABLE Infection(
     FOREIGN KEY (OrgID) REFERENCES Organism (OrgID) ON DELETE CASCADE,
     FOREIGN KEY (MorbusID) REFERENCES Morbus (MorbusID) ON DELETE CASCADE
 );
+
+
+CREATE INDEX organism_name ON Organism (Name);
+CREATE INDEX morbus_name ON Morbus (Name);
 
 
 INSERT INTO OrganismType (OrgTypeID, Name, Description) VALUES (0, "Bestia", "All animals that lives on land or air");
