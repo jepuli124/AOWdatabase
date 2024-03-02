@@ -1,15 +1,15 @@
 CREATE TABLE Organism
 (
     OrgID INT NOT NULL,
-    Name CHAR(40) NOT NULL,
+    Name CHAR(40) NOT NULL UNIQUE,
     Description VARCHAR(65535),
     OrgTypeID INT NOT NULL,
     LivingStyleID INT NOT NULL,
     SoulID INT NOT NULL,
     PRIMARY KEY (OrgID),
-    FOREIGN KEY (OrgTypeID) REFERENCES OrganismType (OrgTypeID),
-    FOREIGN KEY (LivingStyleID) REFERENCES LivingStyle (LivingStyleID),
-    FOREIGN KEY (SoulID) REFERENCES Soul (SoulID)
+    FOREIGN KEY (OrgTypeID) REFERENCES OrganismType (OrgTypeID) ON DELETE CASCADE,
+    FOREIGN KEY (LivingStyleID) REFERENCES LivingStyle (LivingStyleID) ON DELETE CASCADE,
+    FOREIGN KEY (SoulID) REFERENCES Soul (SoulID) ON DELETE CASCADE
 );
 
 CREATE TABLE Morbus
@@ -61,14 +61,14 @@ CREATE TABLE OrgToLA(
     OrgID INT NOT NULL,
     LivingAreaID INT NOT NULL,
     FOREIGN KEY (OrgID) REFERENCES Organism (OrgID) ON DELETE CASCADE,
-    FOREIGN KEY (LivingAreaID) REFERENCES LivingAreas (LivingAreaID)
+    FOREIGN KEY (LivingAreaID) REFERENCES LivingAreas (LivingAreaID) ON DELETE CASCADE
 );
 
 CREATE TABLE Infection(
     OrgID INT NOT NULL,
     MorbusID INT NOT NULL,
     FOREIGN KEY (OrgID) REFERENCES Organism (OrgID) ON DELETE CASCADE,
-    FOREIGN KEY (MorbusID) REFERENCES Morbus (MorbusID)
+    FOREIGN KEY (MorbusID) REFERENCES Morbus (MorbusID) ON DELETE CASCADE
 );
 
 
