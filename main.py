@@ -177,13 +177,17 @@ def dataViewFunction():
         elif choise == "3" or "print s" in choise:
             printSouls()
         elif choise == "4" or "find" in choise:
-            userInput = input("Do you want to find by id, keyword, living area, or living style: ")
-            if "id" in userInput or "key" in userInput:     
+            userInput = input("Do you want to find by id, keyword, living area, living style, or by morbus: ")
+            if "id" in userInput.lower() or "key" in userInput.lower():     
                 findBySpecific()
-            if "area" in userInput:
+            elif "area" in userInput.lower():
                 findByArea()
-            if "sty" in userInput:
+            elif "sty" in userInput.lower():
                 findByStyle()
+            elif "morbus" in userInput.lower():
+                findByMorbus()
+            else:
+                printslow("Invalid input")
         elif choise == "5":
             printInfections()
         elif choise == "0":
@@ -530,7 +534,38 @@ def findByArea():
     for cell in data:
         printslow("ID:",cell[0],"Name:",cell[1],"Description:",cell[2])
 
+def findByMorbus():
+    printslow("Insert a morbus name, id, keyword or symptom to find which organisms can suffer from it")
+    rawChoise = input("Your choise: ")
+    try:
+        choise = int(rawChoise)
+        cursor.execute("SELECT OrgID, name FROM Organism where Organism.OrgID = (SELECT OrgID FROM Infection where Infection.MorbusID = (SELECT MorbusID FROM Morbus where MorbusID = "+rawChoise+"))")
+    except ValueError:
+        cursor.execute("SELECT OrgID, name FROM Organism where Organism.OrgID = (SELECT OrgID FROM Infection where Infection.MorbusID = (SELECT MorbusID FROM Morbus where Name like '%"+rawChoise+"%' UNION SELECT MorbusID FROM Morbus where Description like '%"+rawChoise+"%' UNION SELECT MorbusID FROM Morbus where Symptoms like '%"+rawChoise+"%'))")
+    finally:
+        printslow("")
+        for data in cursor.fetchall():
+            printslow("ID:", data[0], "\nName:", data[1])
+    printslow("")
+    time.sleep(1)
+
+def findMorbus():
+    printslow("Insert a morbus name, id, keyword or symptom to all morbus by that")
+    rawChoise = input("Your choise: ")
+    try:
+        choise = int(rawChoise)
+        cursor.execute("SELECT MorbusID, Name, Description, Symptoms FROM Morbus where MorbusID = "+rawChoise)
+    except ValueError:
+        cursor.execute("SELECT MorbusID, Name, Description, Symptoms FROM Morbus where Name like '%"+rawChoise+"%' UNION SELECT MorbusID, Name, Description, Symptoms FROM Morbus where Description like '%"+rawChoise+"%' UNION SELECT MorbusID, Name, Description, Symptoms FROM Morbus where Symptoms like '%"+rawChoise+"%'")
+    finally:
+        printslow("")
+        for data in cursor.fetchall():
+            printslow("ID:", data[0], "\nName:", data[1], "\nDescription:", data[2],"\nSymptoms:", data[3],"\n")
+    printslow("")
+    time.sleep(1)
+
 
 printslow("Welcome")
 initDatabase()
 main()
+printslow("Thank you for usage of this program")
