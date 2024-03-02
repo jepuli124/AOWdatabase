@@ -1,5 +1,5 @@
 -- All querries and SQL lines used in python frontend
-
+-- This itself is NOT runnable
 SELECT COUNT(*) FROM Organism WHERE OrgID == "'+orgID+'";
 select Name from Organism where OrgID == '+orgID+';
 UPDATE Organism SET Name = "'+newData+'" WHERE OrgID == '+orgID+';
