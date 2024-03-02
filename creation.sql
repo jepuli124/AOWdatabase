@@ -1,7 +1,7 @@
 CREATE TABLE Organism
 (
     OrgID INT NOT NULL,
-    Name CHAR(40) NOT NULL UNIQUE,
+    Name CHAR(40) NOT NULL UNIQUE CHECK (LENGTH(Name) <= 40),
     Description VARCHAR(65535) DEFAULT 'No description given!',
     OrgTypeID INT NOT NULL,
     LivingStyleID INT NOT NULL,
