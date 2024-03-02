@@ -539,13 +539,16 @@ def findByMorbus():
     rawChoise = input("Your choise: ")
     try:
         choise = int(rawChoise)
-        cursor.execute("SELECT OrgID, name FROM Organism where Organism.OrgID = (SELECT OrgID FROM Infection where Infection.MorbusID = (SELECT MorbusID FROM Morbus where MorbusID = "+rawChoise+"))")
+        data = cursor.execute("SELECT ID, name FROM (SELECT Organism.OrgID as ID, name, MorbusID FROM Organism INNER JOIN Infection ON Organism.OrgID = Infection.OrgID) where MorbusID = "+rawChoise+"")
+        
+        for cell in data.fetchall():
+            printslow("ID:", cell[0], "\nName:", cell[1])
     except ValueError:
-        cursor.execute("SELECT OrgID, name FROM Organism where Organism.OrgID = (SELECT OrgID FROM Infection where Infection.MorbusID = (SELECT MorbusID FROM Morbus where Name like '%"+rawChoise+"%' UNION SELECT MorbusID FROM Morbus where Description like '%"+rawChoise+"%' UNION SELECT MorbusID FROM Morbus where Symptoms like '%"+rawChoise+"%'))")
-    finally:
-        printslow("")
-        for data in cursor.fetchall():
-            printslow("ID:", data[0], "\nName:", data[1])
+        data = cursor.execute("SELECT ID, oName FROM (SELECT Organism.OrgID as ID, Morbus.name as mName, Organism.name as oName, Symptoms, Morbus.Description as mDescription FROM Organism INNER JOIN Infection ON Organism.OrgID = Infection.OrgID INNER JOIN Morbus ON Infection.MorbusID = Morbus.MorbusID) where mName like '%"+rawChoise+"%' OR mDescription like '%"+rawChoise+"%' OR Symptoms like '%"+rawChoise+"%'")
+        for cell in data.fetchall():
+            printslow("ID:", cell[0], "\nName:", cell[1])
+    printslow("")
+        
     printslow("")
     time.sleep(1)
 
@@ -568,4 +571,4 @@ def findMorbus():
 printslow("Welcome")
 initDatabase()
 main()
-printslow("Thank you for usage of this program")
+printslow("Thank you for the usage of this program")
