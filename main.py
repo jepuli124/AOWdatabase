@@ -23,13 +23,17 @@ def initDatabase():
             for line in file.readlines():
                 command+=line
             cursor.executescript(command)
-        
+        time.sleep(0.1)
         print("New database has been created!")
+        time.sleep(0.1)
         print("Welcome to Age Of Wonders' bestiary!")
+        time.sleep(0.1)
     else:
         print("Database exist, hurray")
+        time.sleep(0.1)
         choise = input("Do you want to create a new one?: [y/n]")
         if choise[0] == "y" or choise[0] == "Y": 
+            time.sleep(0.1)
             choise = input("Are you sure, old one will be overwritten?: [y/n]")
             if choise[0] == "y" or choise[0] == "Y": 
                 os.remove("database.db")
@@ -38,7 +42,9 @@ def initDatabase():
         db = sql.connect("database.db")
         cursor = db.cursor()
         cursor.execute("PRAGMA foreign_keys = ON")
+        time.sleep(0.1)
         print("Welcome to Age Of Wonders' bestiary!")
+        time.sleep(0.1)
     
 
 #############################################################################################################
@@ -58,7 +64,7 @@ def main():
         elif choise == "3"or "upda" in choise:
             updateOrganism()
         elif choise == "4" or "infect" in choise:
-            addInfection()
+            insertInfection()
         elif choise == "5" or "view" in choise:
             dataViewFunction()
         elif choise == "0" or "end" in choise:
@@ -72,14 +78,23 @@ def main():
     return 0
 
 def mainOptions():
+    time.sleep(0.1)
     print("\nChoose option")
+    time.sleep(0.1)
     print("1) Add new Organism or morbus")
+    time.sleep(0.1)
     print("2) Delete Organism")
+    time.sleep(0.1)
     print("3) Update Organism")
+    time.sleep(0.1)
     print("4) Add infection (connection between morbus and organism)")
+    time.sleep(0.1)
     print("5) Data view selection")
+    time.sleep(0.1)
     print("0) End\n")
+    time.sleep(0.1)
     print("lua) to enter LUA mode")
+    time.sleep(0.1)
     choise = input("Your choise: ")
     return choise.lower()
 
@@ -163,13 +178,21 @@ def dataViewFunction():
     return 0
 
 def dataViewOptions():
+    time.sleep(0.1)
     print("\nChoose a dataview that you want to see:")
+    time.sleep(0.1)
     print("1) Print living areas and living style of a specific organism")
+    time.sleep(0.1)
     print("2) Print Organisms")
+    time.sleep(0.1)
     print("3) Print Souls")
+    time.sleep(0.1)
     print("4) Find by id or keyword")
+    time.sleep(0.1)
     print("5) Print Infections")
+    time.sleep(0.1)
     print("0) Exit")
+    time.sleep(0.1)
     choise = input("Your choise: ")
     return choise.lower()    
 
@@ -184,44 +207,66 @@ def printOrganisms():
     data = cursor.execute("SELECT * FROM Organism")
     for cell in data:
         print("\nID:", cell[0], "Name:", cell[1], "\nDescription:", cell[2])
+        time.sleep(0.1)
     print("")
+    time.sleep(1)
 
-def printInfections(): #!DOTO Still somewhat broken 
+def printInfections(): 
     print("Infections:")
     data = cursor.execute("Select OrgName, Name FROM (SELECT * FROM Infection INNER JOIN (SELECT OrgID as OrganismID, name as OrgName FROM Organism) ON OrganismID = Infection.OrgID INNER JOIN Morbus On Morbus.MorbusID = Infection.MorbusID) ORDER BY OrgName")
     for cell in data.fetchall():
         print("\nOrganism:", cell[0], "Morbus:", cell[1])
+        time.sleep(0.1)
     print("")
+    time.sleep(1)
 
 def printSpecificOrganism(orgID):
     data = cursor.execute('SELECT * FROM Organism WHERE OrgID == '+orgID+';')
     print("")
     print(data.fetchall()[0])
+    time.sleep(1)
     
 def printStyles():
     print("Living Styles: ")
     data = cursor.execute("SELECT * FROM LivingStyle")
     for sty in data.fetchall():
         print(sty)
+        time.sleep(0.1)
+    print("")
+    time.sleep(1)
 
 def printAreas():
     print("Living Areas: ")
     data = cursor.execute("SELECT * FROM LivingAreas")
     for area in data.fetchall():
         print(area)
+        time.sleep(0.1)
+    print("")
+    time.sleep(1)
 
 def printSouls():
     print("Souls:")
-    data = cursor.execute("SELECT * FROM Soul")
+    data = cursor.execute("SELECT name, NaturalSkills, SkillsLimits, Stats FROM Soul INNER JOIN Organism On Soul.OrgID = Organism.OrgID")
     for soul in data.fetchall():
-        print(soul)
+        print("\nName:", soul[0])
+        time.sleep(0.1)
+        print("\nNaturalSkills:", soul[1])
+        time.sleep(0.1)
+        print("\nSkillsLimits:", soul[2])
+        time.sleep(0.1)
+        print("\nStats:", soul[3])
+        time.sleep(0.1)
+    print("")
+    time.sleep(1)
 
 def printMorbus():
     print("Morbus:")
     data = cursor.execute("SELECT * FROM Morbus")
     for cell in data:
         print("\nID:", cell[0], "Name:", cell[1], "\nDescription:", cell[2], "\nSymptoms:", cell[3])
+        time.sleep(0.1)
     print("")
+    time.sleep(1)
 
 def printLivingAreasAndLivingStyle():
     print("")
@@ -250,7 +295,7 @@ def printLivingAreasAndLivingStyle():
         print("\nLiving style:")
         print(fetchedData[1])
     except sql.Error as e:
-        print("Somethjing went wrong Error: ", e)
+        print("Something went wrong Error: ", e)
         return
     
 #############################################################################################################
@@ -350,7 +395,7 @@ def insertMorbus():
         db.rollback()
         print("\nSomething hit the fan, try again! Error: ", e)
 
-def addInfection():
+def insertInfection():
     print("Add a way that a morbus can infect a organism")
     printMorbus()
     morbus = input("Which morbus? you may insert id or name. 'E' exits: ")
@@ -391,7 +436,7 @@ def addInfection():
             db.rollback()
             print("\nSomething hit the fan, try again! Error: ", e)
     if 'y' in input("do you want to choose another morbus) [y/n]").lower():
-        addInfection()
+        insertInfection()
     return
 
 def deleteOrganism():
